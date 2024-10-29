@@ -36,7 +36,7 @@ const PhotoList: React.FC = () => {
         setPhotos((prevPhotos) => [
           ...prevPhotos,
           ...response.data.filter(
-            (newPhoto) => !prevPhotos.some((p) => p.id === newPhoto.id)
+            (newPhoto: Photo) => !prevPhotos.some((p) => p.id === newPhoto.id)
           ),
         ]);
       }
