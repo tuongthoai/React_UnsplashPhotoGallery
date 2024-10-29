@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 
@@ -13,25 +13,37 @@ const PhotoList: React.FC = () => {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
+  const fetchIdRef = useRef(0); // Use ref to track fetch requests.
 
-  const fetchPhotos = async () => {
+  const fetchPhotos = useCallback(async () => {
     setLoading(true);
+    const currentFetchId = ++fetchIdRef.current; // Track the current fetch.
+
     try {
       const response = await axios.get(
         `https://api.unsplash.com/photos?client_id=${
           import.meta.env.VITE_UNSPLASH_ACCESS_KEY
         }&page=${page}`
       );
-      setPhotos((prevPhotos) => [...prevPhotos, ...response.data]);
+
+      if (currentFetchId === fetchIdRef.current) {
+        // Only update state if this is the latest request.
+        setPhotos((prevPhotos) => [
+          ...new Map(
+            [...prevPhotos, ...response.data].map((p) => [p.id, p])
+          ).values(),
+        ]);
+      }
     } catch (error) {
       console.error("Error fetching photos:", error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  };
+  }, [page]);
 
   useEffect(() => {
     fetchPhotos();
-  }, [page]);
+  }, [page, fetchPhotos]);
 
   const handleScroll = useCallback(() => {
     if (
@@ -53,7 +65,6 @@ const PhotoList: React.FC = () => {
         The Unsplash Photo Gallery
       </h1>
       <div className="container mx-auto p-4 min-h-screen">
-        {/* Grid layout with columns */}
         <div className="columns-1 sm:columns-2 lg:columns-4 gap-4">
           {photos.map((photo) => (
             <Link
@@ -64,7 +75,7 @@ const PhotoList: React.FC = () => {
               <img
                 src={photo.urls.thumb}
                 alt={photo.alt_description}
-                className="w-full rounded-md"
+                className="w-full rounded-md object-cover"
               />
               <p className="absolute bottom-2 left-2 text-white bg-black/60 px-2 py-1 rounded mt-2 inline-block">
                 {photo.user.name}

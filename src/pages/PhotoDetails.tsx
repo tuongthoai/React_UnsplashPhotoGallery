@@ -39,24 +39,34 @@ const PhotoDetails: React.FC = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <Link to="/" className="text-blue-500">
-        Back to Photos
-      </Link>
-
-      {/* Limit the height of the photo while maintaining aspect ratio */}
-      <div className="mt-4 max-h-[500px] overflow-hidden">
-        <img
-          src={photo.urls.regular}
-          alt={photo.alt_description || "Photo"}
-          className="w-fit object-cover rounded-md"
-        />
+      <div>
+        <Link to="/" className="text-blue-600 underline">
+          Back to Photos
+        </Link>
       </div>
 
-      <h1 className="text-2xl font-bold mt-2">
-        {photo.alt_description || "No Title Available"}
-      </h1>
-      <p className="text-gray-500">By {photo.user.name}</p>
-      <p className="mt-2">{photo.description || "No Description Available"}</p>
+      {/* Two-column layout */}
+      <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Left Column: Image */}
+        <div className="flex justify-center">
+          <img
+            src={photo.urls.regular}
+            alt={photo.alt_description || "Photo"}
+            className="w-96 max-w-full object-contain rounded-lg shadow-lg"
+          />
+        </div>
+
+        {/* Right Column: Photo Details */}
+        <div className="flex flex-col justify-center space-y-4">
+          <h1 className="text-3xl font-bold">
+            {photo.alt_description || "Untitled Photo"}
+          </h1>
+          <p className="text-gray-500 text-lg">By {photo.user.name}</p>
+          <p className="text-base">
+            {photo.description || "No description available for this photo."}
+          </p>
+        </div>
+      </div>
     </div>
   );
 };
